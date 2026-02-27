@@ -63,6 +63,12 @@ const scriptExecuteLimiter = rateLimit({
   message: { message: "Too many script execute requests, please wait" },
 });
 
+const showcaseActionLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  message: { message: "Too many actions, please try again later" },
+});
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
@@ -653,6 +659,45 @@ export async function registerRoutes(
       res.json({ message: "Deleted" });
     } catch (error) {
       console.error("Delete showcase error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.post("/api/showcase/:id/view", showcaseActionLimiter, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ message: "Invalid ID" });
+      const item = await storage.incrementShowcaseView(id);
+      if (!item) return res.status(404).json({ message: "Not found" });
+      res.json({ viewCount: item.viewCount });
+    } catch (error) {
+      console.error("Showcase view error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.post("/api/showcase/:id/like", showcaseActionLimiter, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ message: "Invalid ID" });
+      const item = await storage.incrementShowcaseLike(id);
+      if (!item) return res.status(404).json({ message: "Not found" });
+      res.json({ likeCount: item.likeCount });
+    } catch (error) {
+      console.error("Showcase like error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.post("/api/showcase/:id/tip", showcaseActionLimiter, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ message: "Invalid ID" });
+      const item = await storage.incrementShowcaseTip(id);
+      if (!item) return res.status(404).json({ message: "Not found" });
+      res.json({ tipCount: item.tipCount });
+    } catch (error) {
+      console.error("Showcase tip error:", error);
       res.status(500).json({ message: "Internal server error" });
     }
   });

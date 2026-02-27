@@ -51,6 +51,11 @@ export const showcase = pgTable("showcase", {
   feature3Icon: text("feature_3_icon"),
   feature3Text: text("feature_3_text").notNull(),
   sortOrder: integer("sort_order").default(0).notNull(),
+  buttonLabel: text("button_label"),
+  buttonUrl: text("button_url"),
+  likeCount: integer("like_count").default(0).notNull(),
+  viewCount: integer("view_count").default(0).notNull(),
+  tipCount: integer("tip_count").default(0).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

@@ -61,6 +61,8 @@ const defaultForm = {
   feature3Icon: "Star",
   feature3Text: "",
   sortOrder: 0,
+  buttonLabel: "",
+  buttonUrl: "",
 };
 
 export default function ShowcaseAdmin() {
@@ -134,6 +136,8 @@ export default function ShowcaseAdmin() {
       feature3Icon: item.feature3Icon ?? "Star",
       feature3Text: item.feature3Text,
       sortOrder: item.sortOrder ?? 0,
+      buttonLabel: item.buttonLabel ?? "",
+      buttonUrl: item.buttonUrl ?? "",
     });
     setDialogOpen(true);
   };
@@ -191,7 +195,11 @@ export default function ShowcaseAdmin() {
                     )}
                     <div>
                       <p className="font-medium">{item.scriptName}</p>
-                      <p className="text-sm text-muted-foreground">{item.gameName} · {item.type}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {item.gameName} · {item.type}
+                        {" · "}
+                        👍 {item.likeCount ?? 0} · 👁 {item.viewCount ?? 0} · 🎁 {item.tipCount ?? 0}
+                      </p>
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -291,6 +299,24 @@ export default function ShowcaseAdmin() {
                 value={form.sortOrder}
                 onChange={(e) => setForm({ ...form, sortOrder: parseInt(e.target.value) || 0 })}
               />
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <div>
+                <Label>Nama tombol (opsional)</Label>
+                <Input
+                  value={form.buttonLabel}
+                  onChange={(e) => setForm({ ...form, buttonLabel: e.target.value })}
+                  placeholder="Contoh: Dapatkan Script"
+                />
+              </div>
+              <div>
+                <Label>Link tombol (opsional)</Label>
+                <Input
+                  value={form.buttonUrl}
+                  onChange={(e) => setForm({ ...form, buttonUrl: e.target.value })}
+                  placeholder="https://..."
+                />
+              </div>
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>

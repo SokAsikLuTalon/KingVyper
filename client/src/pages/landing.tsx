@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import {
   Key,
   Shield,
@@ -11,6 +11,9 @@ import {
   Sparkles,
   Gamepad2,
   Play,
+  Heart,
+  Eye,
+  Gift,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +23,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { Showcase } from "@shared/schema";
+import { queryClient } from "@/lib/queryClient";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Zap,
@@ -41,7 +45,7 @@ function getYoutubeId(url: string | null): string {
 export default function Landing() {
   const [filterType, setFilterType] = useState<"all" | "free" | "premium">("all");
   const [filterGame, setFilterGame] = useState<string>("all");
-  const [videoModal, setVideoModal] = useState<string | null>(null);
+  const [videoModal, setVideoModal] = useState<{ id: number; vidId: string } | null>(null);
 
   const { data: showcaseItems = [] } = useQuery<Showcase[]>({
     queryKey: ["/api/showcase"],
@@ -51,6 +55,32 @@ export default function Landing() {
       return res.json();
     },
   });
+
+  const viewMutation = useMutation({
+    mutationFn: (id: number) =>
+      fetch(`/api/showcase/${id}/view`, { method: "POST" }).then((r) => (r.ok ? r.json() : Promise.reject(new Error("Failed")))),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/showcase"] }),
+  });
+
+  const likeMutation = useMutation({
+    mutationFn: (id: number) =>
+      fetch(`/api/showcase/${id}/like`, { method: "POST" }).then((r) => (r.ok ? r.json() : Promise.reject(new Error("Failed")))),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/showcase"] }),
+  });
+
+  const tipMutation = useMutation({
+    mutationFn: (id: number) =>
+      fetch(`/api/showcase/${id}/tip`, { method: "POST" }).then((r) => (r.ok ? r.json() : Promise.reject(new Error("Failed")))),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/showcase"] }),
+  });
+
+  const openVideo = (item: Showcase) => {
+    const vidId = getYoutubeId(item.youtubeUrl);
+    if (vidId) {
+      setVideoModal({ id: item.id, vidId });
+      viewMutation.mutate(item.id);
+    }
+  };
 
   const games = useMemo(() => {
     const set = new Set(showcaseItems.map((s) => s.gameName).filter(Boolean));
@@ -183,7 +213,7 @@ export default function Landing() {
                       <button
                         type="button"
                         className="relative aspect-video w-full overflow-hidden bg-muted focus:outline-none focus:ring-2 focus:ring-ring"
-                        onClick={() => setVideoModal(vidId)}
+                        onClick={() => openVideo(item)}
                       >
                         <img
                           src={`https://img.youtube.com/vi/${vidId}/mqdefault.jpg`}
@@ -218,19 +248,39 @@ export default function Landing() {
                           {item.feature3Text}
                         </li>
                       </ul>
-                      <div className="mt-4">
-                        {item.type === "free" ? (
-                          <Button variant="outline" className="w-full" asChild>
-                            <a href="#" onClick={(e) => e.preventDefault()}>
-                              Get Script
+                      <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                        <button
+                          type="button"
+                          onClick={() => likeMutation.mutate(item.id)}
+                          className="inline-flex items-center gap-1 rounded-md p-1.5 hover:bg-muted hover:text-foreground"
+                          title="Suka"
+                        >
+                          <Heart className="h-4 w-4" />
+                          <span>{item.likeCount ?? 0}</span>
+                        </button>
+                        <span className="inline-flex items-center gap-1" title="Dilihat">
+                          <Eye className="h-4 w-4" />
+                          <span>{item.viewCount ?? 0}</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => tipMutation.mutate(item.id)}
+                          className="inline-flex items-center gap-1 rounded-md p-1.5 hover:bg-muted hover:text-foreground"
+                          title="Tanda mata"
+                        >
+                          <Gift className="h-4 w-4" />
+                          <span>{item.tipCount ?? 0}</span>
+                        </button>
+                      </div>
+                      {item.buttonLabel && item.buttonUrl ? (
+                        <div className="mt-4">
+                          <Button className="w-full" asChild>
+                            <a href={item.buttonUrl} target="_blank" rel="noopener noreferrer">
+                              {item.buttonLabel}
                             </a>
                           </Button>
-                        ) : (
-                          <Button className="w-full" asChild>
-                            <Link href="/validate">Get Key</Link>
-                          </Button>
-                        )}
-                      </div>
+                        </div>
+                      ) : null}
                     </div>
                   </div>
                 );
@@ -250,14 +300,28 @@ export default function Landing() {
             <DialogTitle>Video</DialogTitle>
           </DialogHeader>
           {videoModal && (
-            <div className="aspect-video w-full">
-              <iframe
-                title="YouTube"
-                src={`https://www.youtube.com/embed/${videoModal}?autoplay=1`}
-                className="h-full w-full"
-                allowFullScreen
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              />
+            <div>
+              <div className="aspect-video w-full bg-black">
+                <iframe
+                  title="YouTube"
+                  src={`https://www.youtube-nocookie.com/embed/${videoModal.vidId}`}
+                  className="h-full w-full"
+                  allowFullScreen
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                />
+              </div>
+              <div className="flex justify-center border-t bg-muted/50 p-3">
+                <a
+                  href={`https://www.youtube.com/watch?v=${videoModal.vidId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+                >
+                  <Play className="h-4 w-4" />
+                  Tonton di YouTube
+                </a>
+              </div>
             </div>
           )}
         </DialogContent>

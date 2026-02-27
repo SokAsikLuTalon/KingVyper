@@ -69,6 +69,9 @@ export interface IStorage {
   createShowcase(data: InsertShowcase): Promise<Showcase>;
   updateShowcase(id: number, data: Partial<Showcase>): Promise<Showcase | undefined>;
   deleteShowcase(id: number): Promise<boolean>;
+  incrementShowcaseView(id: number): Promise<Showcase | undefined>;
+  incrementShowcaseLike(id: number): Promise<Showcase | undefined>;
+  incrementShowcaseTip(id: number): Promise<Showcase | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -429,6 +432,33 @@ export class DatabaseStorage implements IStorage {
   async deleteShowcase(id: number): Promise<boolean> {
     const result = await db.delete(showcase).where(eq(showcase.id, id)).returning();
     return result.length > 0;
+  }
+
+  async incrementShowcaseView(id: number): Promise<Showcase | undefined> {
+    const [updated] = await db
+      .update(showcase)
+      .set({ viewCount: sql`${showcase.viewCount} + 1` })
+      .where(eq(showcase.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
+  async incrementShowcaseLike(id: number): Promise<Showcase | undefined> {
+    const [updated] = await db
+      .update(showcase)
+      .set({ likeCount: sql`${showcase.likeCount} + 1` })
+      .where(eq(showcase.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
+  async incrementShowcaseTip(id: number): Promise<Showcase | undefined> {
+    const [updated] = await db
+      .update(showcase)
+      .set({ tipCount: sql`${showcase.tipCount} + 1` })
+      .where(eq(showcase.id, id))
+      .returning();
+    return updated || undefined;
   }
 }
 
