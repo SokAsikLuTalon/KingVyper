@@ -26,7 +26,7 @@ import type { Showcase, Package } from "@shared/schema";
 import { queryClient } from "@/lib/queryClient";
 
 function formatIdr(value: string | number): string {
-  const n = typeof value === "string" ? parseInt(String(value).replace(/\D/g, ""), 10) || 0 : Number(value);
+  const n = typeof value === "string" ? parseFloat(String(value).replace(/,/g, "")) || 0 : Number(value);
   return new Intl.NumberFormat("id-ID").format(n);
 }
 

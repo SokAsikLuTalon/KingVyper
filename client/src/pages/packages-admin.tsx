@@ -42,7 +42,7 @@ const defaultForm = {
 };
 
 function formatIdr(value: string | number): string {
-  const n = typeof value === "string" ? parseInt(value, 10) || 0 : value;
+  const n = typeof value === "string" ? parseFloat(String(value).replace(/,/g, "")) || 0 : Number(value);
   return new Intl.NumberFormat("id-ID").format(n);
 }
 
@@ -66,7 +66,7 @@ export default function PackagesAdmin() {
     mutationFn: (data: typeof defaultForm) =>
       apiRequest("POST", "/api/packages", {
         ...data,
-        price: String(data.price).replace(/\D/g, "") || "0",
+        price: String(parseFloat(String(data.price).replace(/,/g, "")) || 0),
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/packages"] });
@@ -81,7 +81,7 @@ export default function PackagesAdmin() {
     mutationFn: ({ id, data }: { id: number; data: Partial<typeof defaultForm> }) =>
       apiRequest("PATCH", `/api/packages/${id}`, {
         ...data,
-        ...(data.price !== undefined && { price: String(data.price).replace(/\D/g, "") || "0" }),
+        ...(data.price !== undefined && { price: String(parseFloat(String(data.price).replace(/,/g, "")) || 0) }),
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/packages"] });
