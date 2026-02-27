@@ -20,6 +20,7 @@ export const keys = pgTable("keys", {
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
   status: keyStatusEnum("status").default("unused").notNull(),
   hwid: text("hwid"),
+  hwidResetAt: timestamp("hwid_reset_at"),
   robloxUsername: text("roblox_username"),
   executionCount: integer("execution_count").default(0).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),

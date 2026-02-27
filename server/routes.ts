@@ -430,6 +430,9 @@ export async function registerRoutes(
         return res.json({
           success: true,
           status: "expired",
+          expiresAt: key.expiresAt,
+          hwid: key.hwid,
+          hwidResetAt: key.hwidResetAt,
           message: "This key has expired",
         });
       }
@@ -438,6 +441,8 @@ export async function registerRoutes(
         success: true,
         status: key.status,
         expiresAt: key.expiresAt,
+        hwid: key.hwid,
+        hwidResetAt: key.hwidResetAt,
         message: `Key status: ${key.status}`,
       });
     } catch (error) {
@@ -446,6 +451,69 @@ export async function registerRoutes(
         success: false,
         message: "Internal server error",
       });
+    }
+  });
+
+  const HWID_RESET_COOLDOWN_MS = 20 * 60 * 1000; // 20 minutes
+
+  app.post("/api/user-reset-hwid", keyValidationLimiter, async (req, res) => {
+    try {
+      const { key: keyCode } = req.body;
+      if (!keyCode || typeof keyCode !== "string") {
+        return res.status(400).json({
+          success: false,
+          message: "Key is required",
+        });
+      }
+
+      const key = await storage.getKeyByCode(keyCode.trim());
+      if (!key) {
+        return res.status(404).json({ success: false, message: "Key not found" });
+      }
+      if (key.status === "blacklisted") {
+        return res.status(403).json({ success: false, message: "Key is blacklisted" });
+      }
+      if (key.status === "expired") {
+        return res.status(403).json({ success: false, message: "Key has expired" });
+      }
+      if (key.status === "unused") {
+        return res.status(400).json({ success: false, message: "Key not activated yet, no HWID to reset" });
+      }
+
+      const now = new Date();
+      const resetAt = key.hwidResetAt ? new Date(key.hwidResetAt) : null;
+      const nextAllowedAt = resetAt ? new Date(resetAt.getTime() + HWID_RESET_COOLDOWN_MS) : null;
+      if (nextAllowedAt && now < nextAllowedAt) {
+        const minutesLeft = Math.ceil((nextAllowedAt.getTime() - now.getTime()) / 60000);
+        return res.status(429).json({
+          success: false,
+          message: `Bisa reset lagi dalam ${minutesLeft} menit`,
+          resetAvailableAt: nextAllowedAt.toISOString(),
+        });
+      }
+
+      const updated = await storage.updateKey(key.id, {
+        hwid: null,
+        hwidResetAt: now,
+      });
+      if (!updated) {
+        return res.status(500).json({ success: false, message: "Failed to reset HWID" });
+      }
+
+      await storage.createLog({
+        action: "reset",
+        keyId: key.id,
+        details: `HWID reset by user (self-service) for key ${key.keyCode}`,
+      });
+
+      return res.json({
+        success: true,
+        message: "HWID berhasil di-reset. Key bisa dipakai di device baru.",
+        resetAvailableAt: new Date(now.getTime() + HWID_RESET_COOLDOWN_MS).toISOString(),
+      });
+    } catch (error) {
+      console.error("User reset HWID error:", error);
+      res.status(500).json({ success: false, message: "Internal server error" });
     }
   });
 
@@ -503,6 +571,7 @@ export async function registerRoutes(
       // RESET HWID
       const updatedKey = await storage.updateKey(existingKey.id, {
         hwid: null,
+        hwidResetAt: new Date(),
       });
 
       if (!updatedKey) {
