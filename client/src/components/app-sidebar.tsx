@@ -16,11 +16,11 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 
 const menuItems = [
-  { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
-  { title: "Keys", url: "/admin/keys", icon: Key },
-  { title: "Generate Keys", url: "/admin/generate", icon: Plus },
-  { title: "Revenue", url: "/admin/revenue", icon: DollarSign },
-  { title: "Settings", url: "/admin/settings", icon: Settings },
+  { title: "Dashboard", url: "/kings/dashboard", icon: LayoutDashboard },
+  { title: "Keys", url: "/kings/keys", icon: Key },
+  { title: "Generate Keys", url: "/kings/generate", icon: Plus },
+  { title: "Revenue", url: "/kings/revenue", icon: DollarSign },
+  { title: "Settings", url: "/kings/settings", icon: Settings },
 ];
 
 export function AppSidebar() {
@@ -47,7 +47,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {menuItems.map((item) => {
                 const isActive = location === item.url ||
-                  (item.url !== "/admin/dashboard" && location.startsWith(item.url));
+                  (item.url !== "/kings/dashboard" && location.startsWith(item.url));
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton

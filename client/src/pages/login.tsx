@@ -42,7 +42,7 @@ export default function Login() {
         title: "Welcome back!",
         description: "You have successfully logged in.",
       });
-      window.location.href = "/admin/dashboard";
+      window.location.href = "/kings/dashboard";
     } catch (error: any) {
       toast({
         title: "Login failed",

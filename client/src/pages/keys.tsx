@@ -262,7 +262,7 @@ export default function Keys() {
             <Download className="mr-2 h-4 w-4" />
             Export CSV
           </Button>
-          <Link href="/admin/generate">
+          <Link href="/kings/generate">
             <Button data-testid="button-generate-new">
               <Plus className="mr-2 h-4 w-4" />
               Generate Keys
@@ -482,7 +482,7 @@ export default function Keys() {
               <Key className="mb-4 h-12 w-12 opacity-50" />
               <p className="text-lg font-medium">No keys found</p>
               <p className="text-sm">Generate your first key to get started</p>
-              <Link href="/admin/generate">
+              <Link href="/kings/generate">
                 <Button className="mt-4" data-testid="button-generate-first">
                   <Plus className="mr-2 h-4 w-4" />
                   Generate Keys

@@ -180,9 +180,6 @@ export default function ValidateKey() {
             <Link href="/">
               <Button variant="ghost" size="sm">Home</Button>
             </Link>
-            <Link href="/admin">
-              <Button variant="outline" size="sm">Admin</Button>
-            </Link>
           </div>
         </div>
       </header>

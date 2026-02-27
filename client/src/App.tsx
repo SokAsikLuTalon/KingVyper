@@ -40,12 +40,12 @@ function ThemeToggle() {
 function AdminProtectedRouter() {
   return (
     <Switch>
-      <Route path="/admin" component={() => <Redirect to="/admin/dashboard" />} />
-      <Route path="/admin/dashboard" component={Dashboard} />
-      <Route path="/admin/keys" component={Keys} />
-      <Route path="/admin/generate" component={Generate} />
-      <Route path="/admin/revenue" component={Revenue} />
-      <Route path="/admin/settings" component={Settings} />
+      <Route path="/kings" component={() => <Redirect to="/kings/dashboard" />} />
+      <Route path="/kings/dashboard" component={Dashboard} />
+      <Route path="/kings/keys" component={Keys} />
+      <Route path="/kings/generate" component={Generate} />
+      <Route path="/kings/revenue" component={Revenue} />
+      <Route path="/kings/settings" component={Settings} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -92,8 +92,8 @@ function RootRouter() {
     return <ValidateKey />;
   }
 
-  // Admin routes: /admin, /admin/dashboard, /admin/keys, ...
-  if (location.startsWith("/admin")) {
+  // Admin routes (hidden path): /kings, /kings/dashboard, ...
+  if (location.startsWith("/kings")) {
     return <AdminArea />;
   }
 

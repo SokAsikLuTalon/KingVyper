@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Key, Shield, Zap, Crown, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Key, Shield, Zap, Crown, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function Landing() {
@@ -20,9 +20,6 @@ export default function Landing() {
                 Validate Key
               </Button>
             </Link>
-            <Link href="/admin">
-              <Button size="sm">Admin Login</Button>
-            </Link>
           </nav>
         </div>
       </header>
@@ -41,12 +38,6 @@ export default function Landing() {
               <Button size="lg" className="gap-2 text-base">
                 <Key className="h-5 w-5" />
                 Validate My Key
-              </Button>
-            </Link>
-            <Link href="/admin">
-              <Button size="lg" variant="outline" className="gap-2 text-base">
-                Admin Dashboard
-                <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
           </div>
@@ -82,7 +73,7 @@ export default function Landing() {
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-chart-3/10">
                 <Crown className="h-6 w-6 text-chart-3" />
               </div>
-              <h3 className="mt-4 font-semibold text-lg">Admin Dashboard</h3>
+              <h3 className="mt-4 font-semibold text-lg">Dashboard</h3>
               <p className="mt-2 text-sm text-muted-foreground">
                 Generate keys, track revenue, blacklist abuse, and reset HWID—all from one dashboard.
               </p>
@@ -142,9 +133,6 @@ export default function Landing() {
           <div className="flex gap-6">
             <Link href="/validate" className="text-sm text-muted-foreground hover:text-foreground">
               Validate Key
-            </Link>
-            <Link href="/admin" className="text-sm text-muted-foreground hover:text-foreground">
-              Admin
             </Link>
           </div>
         </div>
