@@ -5,6 +5,7 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 export const keyStatusEnum = pgEnum("key_status", ["unused", "active", "expired", "blacklisted"]);
+export const showcaseTypeEnum = pgEnum("showcase_type", ["free", "premium"]);
 
 export const admins = pgTable("admins", {
   id: serial("id").primaryKey(),
@@ -35,6 +36,22 @@ export const logs = pgTable("logs", {
   keyId: integer("key_id").references(() => keys.id),
   details: text("details"),
   timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+export const showcase = pgTable("showcase", {
+  id: serial("id").primaryKey(),
+  scriptName: text("script_name").notNull(),
+  gameName: text("game_name").notNull(),
+  type: showcaseTypeEnum("type").notNull(),
+  youtubeUrl: text("youtube_url"),
+  feature1Icon: text("feature_1_icon"),
+  feature1Text: text("feature_1_text").notNull(),
+  feature2Icon: text("feature_2_icon"),
+  feature2Text: text("feature_2_text").notNull(),
+  feature3Icon: text("feature_3_icon"),
+  feature3Text: text("feature_3_text").notNull(),
+  sortOrder: integer("sort_order").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const keysRelations = relations(keys, ({ many }) => ({
@@ -94,9 +111,16 @@ export const scriptExecuteSchema = z.object({
   robloxUsername: z.string().optional(),
 });
 
+export const insertShowcaseSchema = createInsertSchema(showcase).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type Admin = typeof admins.$inferSelect;
 export type InsertAdmin = z.infer<typeof insertAdminSchema>;
 export type Key = typeof keys.$inferSelect;
 export type InsertKey = z.infer<typeof insertKeySchema>;
 export type Log = typeof logs.$inferSelect;
 export type InsertLog = z.infer<typeof insertLogSchema>;
+export type Showcase = typeof showcase.$inferSelect;
+export type InsertShowcase = z.infer<typeof insertShowcaseSchema>;

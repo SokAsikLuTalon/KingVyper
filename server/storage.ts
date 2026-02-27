@@ -2,15 +2,18 @@ import {
   admins,
   keys,
   logs,
+  showcase,
   type Admin,
   type InsertAdmin,
   type Key,
   type InsertKey,
   type Log,
   type InsertLog,
+  type Showcase,
+  type InsertShowcase,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, gte, and, sql, like, or } from "drizzle-orm";
+import { eq, desc, asc, gte, and, sql, like, or } from "drizzle-orm";
 
 export interface IStorage {
   getAdmin(id: number): Promise<Admin | undefined>;
@@ -59,8 +62,13 @@ export interface IStorage {
 
   updateExpiredKeys(): Promise<void>;
 
-  // ✅ TAMBAHAN
   resetKeyHwid(keyCode: string): Promise<Key | undefined>;
+
+  getAllShowcase(): Promise<Showcase[]>;
+  getShowcase(id: number): Promise<Showcase | undefined>;
+  createShowcase(data: InsertShowcase): Promise<Showcase>;
+  updateShowcase(id: number, data: Partial<Showcase>): Promise<Showcase | undefined>;
+  deleteShowcase(id: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -385,12 +393,42 @@ export class DatabaseStorage implements IStorage {
       .update(keys)
       .set({
         hwid: null,
-        // hwidResetAt: new Date(), // optional kalau kolom ada
       })
       .where(eq(keys.keyCode, keyCode))
       .returning();
 
     return updated || undefined;
+  }
+
+  async getAllShowcase(): Promise<Showcase[]> {
+    return db
+      .select()
+      .from(showcase)
+      .orderBy(asc(showcase.sortOrder), asc(showcase.id));
+  }
+
+  async getShowcase(id: number): Promise<Showcase | undefined> {
+    const [row] = await db.select().from(showcase).where(eq(showcase.id, id));
+    return row || undefined;
+  }
+
+  async createShowcase(data: InsertShowcase): Promise<Showcase> {
+    const [created] = await db.insert(showcase).values(data).returning();
+    return created;
+  }
+
+  async updateShowcase(id: number, data: Partial<Showcase>): Promise<Showcase | undefined> {
+    const [updated] = await db
+      .update(showcase)
+      .set(data)
+      .where(eq(showcase.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
+  async deleteShowcase(id: number): Promise<boolean> {
+    const result = await db.delete(showcase).where(eq(showcase.id, id)).returning();
+    return result.length > 0;
   }
 }
 

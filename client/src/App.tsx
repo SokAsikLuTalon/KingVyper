@@ -18,6 +18,7 @@ import Keys from "@/pages/keys";
 import Generate from "@/pages/generate";
 import Revenue from "@/pages/revenue";
 import Settings from "@/pages/settings";
+import ShowcaseAdmin from "@/pages/showcase-admin";
 
 function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
@@ -46,6 +47,7 @@ function AdminProtectedRouter() {
       <Route path="/kings/generate" component={Generate} />
       <Route path="/kings/revenue" component={Revenue} />
       <Route path="/kings/settings" component={Settings} />
+      <Route path="/kings/showcase" component={ShowcaseAdmin} />
       <Route component={NotFound} />
     </Switch>
   );

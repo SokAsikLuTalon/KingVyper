@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import rateLimit from "express-rate-limit";
-import { loginSchema, validateKeySchema, generateKeysSchema, scriptExecuteSchema } from "@shared/schema";
+import { loginSchema, validateKeySchema, generateKeysSchema, scriptExecuteSchema, insertShowcaseSchema } from "@shared/schema";
 import { z } from "zod";
 
 const JWT_SECRET = process.env.SESSION_SECRET || "kingvypers-secret-key";
@@ -600,6 +600,60 @@ export async function registerRoutes(
         success: false,
         message: "Internal server error",
       });
+    }
+  });
+
+  app.get("/api/showcase", async (req, res) => {
+    try {
+      const items = await storage.getAllShowcase();
+      res.json(items);
+    } catch (error) {
+      console.error("Showcase error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.post("/api/showcase", authMiddleware, async (req, res) => {
+    try {
+      const data = insertShowcaseSchema.parse(req.body);
+      const item = await storage.createShowcase(data);
+      res.status(201).json(item);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: error.errors[0].message });
+      }
+      console.error("Create showcase error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.patch("/api/showcase/:id", authMiddleware, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ message: "Invalid ID" });
+      const data = insertShowcaseSchema.partial().parse(req.body);
+      const item = await storage.updateShowcase(id, data);
+      if (!item) return res.status(404).json({ message: "Not found" });
+      res.json(item);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: error.errors[0].message });
+      }
+      console.error("Update showcase error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.delete("/api/showcase/:id", authMiddleware, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ message: "Invalid ID" });
+      const ok = await storage.deleteShowcase(id);
+      if (!ok) return res.status(404).json({ message: "Not found" });
+      res.json({ message: "Deleted" });
+    } catch (error) {
+      console.error("Delete showcase error:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
   });
 

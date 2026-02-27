@@ -1,8 +1,69 @@
+import { useState, useMemo } from "react";
 import { Link } from "wouter";
-import { Key, Shield, Zap, Crown, CheckCircle2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import {
+  Key,
+  Shield,
+  Zap,
+  Crown,
+  CheckCircle2,
+  Star,
+  Sparkles,
+  Gamepad2,
+  Play,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import type { Showcase } from "@shared/schema";
+
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  Zap,
+  Shield,
+  Star,
+  Sparkles,
+  Key,
+  Crown,
+  Gamepad2,
+  CheckCircle2,
+};
+
+function getYoutubeId(url: string | null): string {
+  if (!url) return "";
+  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return m ? m[1] : "";
+}
 
 export default function Landing() {
+  const [filterType, setFilterType] = useState<"all" | "free" | "premium">("all");
+  const [filterGame, setFilterGame] = useState<string>("all");
+  const [videoModal, setVideoModal] = useState<string | null>(null);
+
+  const { data: showcaseItems = [] } = useQuery<Showcase[]>({
+    queryKey: ["/api/showcase"],
+    queryFn: async () => {
+      const res = await fetch("/api/showcase");
+      if (!res.ok) return [];
+      return res.json();
+    },
+  });
+
+  const games = useMemo(() => {
+    const set = new Set(showcaseItems.map((s) => s.gameName).filter(Boolean));
+    return Array.from(set).sort();
+  }, [showcaseItems]);
+
+  const filtered = useMemo(() => {
+    return showcaseItems.filter((item) => {
+      if (filterType !== "all" && item.type !== filterType) return false;
+      if (filterGame !== "all" && item.gameName !== filterGame) return false;
+      return true;
+    });
+  }, [showcaseItems, filterType, filterGame]);
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -43,6 +104,164 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* Showcase */}
+      {showcaseItems.length > 0 && (
+        <section className="border-t bg-muted/30 py-16">
+          <div className="container px-4">
+            <h2 className="font-serif text-3xl font-bold tracking-wide text-center mb-8">
+              Scripts
+            </h2>
+            <div className="mb-6 flex flex-wrap items-center justify-center gap-3">
+              <span className="text-sm font-medium text-muted-foreground">Type:</span>
+              <div className="flex rounded-lg border bg-background p-1">
+                {(["all", "free", "premium"] as const).map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setFilterType(t)}
+                    className={`rounded-md px-3 py-1.5 text-sm font-medium capitalize transition ${
+                      filterType === t ? "bg-primary text-primary-foreground" : "hover:bg-muted"
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+              {games.length > 0 && (
+                <>
+                  <span className="ml-4 text-sm font-medium text-muted-foreground">Game:</span>
+                  <div className="flex flex-wrap gap-1 rounded-lg border bg-background p-1">
+                    <button
+                      type="button"
+                      onClick={() => setFilterGame("all")}
+                      className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
+                        filterGame === "all" ? "bg-primary text-primary-foreground" : "hover:bg-muted"
+                      }`}
+                    >
+                      All Games
+                    </button>
+                    {games.map((g) => (
+                      <button
+                        key={g}
+                        type="button"
+                        onClick={() => setFilterGame(g)}
+                        className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
+                          filterGame === g ? "bg-primary text-primary-foreground" : "hover:bg-muted"
+                        }`}
+                      >
+                        {g}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {filtered.map((item) => {
+                const vidId = getYoutubeId(item.youtubeUrl);
+                const Icon1 = ICON_MAP[item.feature1Icon ?? "Zap"] ?? Zap;
+                const Icon2 = ICON_MAP[item.feature2Icon ?? "Shield"] ?? Shield;
+                const Icon3 = ICON_MAP[item.feature3Icon ?? "Star"] ?? Star;
+                return (
+                  <div
+                    key={item.id}
+                    className="group relative flex flex-col overflow-hidden rounded-xl border bg-card text-card-foreground shadow-sm"
+                  >
+                    <div className="absolute right-2 top-2 z-10">
+                      <span
+                        className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                          item.type === "free"
+                            ? "bg-chart-2 text-white"
+                            : "bg-amber-500 text-black"
+                        }`}
+                      >
+                        {item.type === "free" ? "FREE" : "PREMIUM"}
+                      </span>
+                    </div>
+                    {vidId ? (
+                      <button
+                        type="button"
+                        className="relative aspect-video w-full overflow-hidden bg-muted focus:outline-none focus:ring-2 focus:ring-ring"
+                        onClick={() => setVideoModal(vidId)}
+                      >
+                        <img
+                          src={`https://img.youtube.com/vi/${vidId}/mqdefault.jpg`}
+                          alt=""
+                          className="h-full w-full object-cover transition group-hover:opacity-90"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 transition group-hover:bg-black/40">
+                          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90">
+                            <Play className="h-7 w-7 text-primary ml-1" />
+                          </div>
+                        </div>
+                      </button>
+                    ) : (
+                      <div className="aspect-video w-full bg-muted flex items-center justify-center">
+                        <span className="text-muted-foreground text-sm">No video</span>
+                      </div>
+                    )}
+                    <div className="flex flex-1 flex-col p-4">
+                      <h3 className="font-semibold text-lg">{item.scriptName}</h3>
+                      <p className="text-sm text-muted-foreground">{item.gameName}</p>
+                      <ul className="mt-3 space-y-1.5 text-sm">
+                        <li className="flex items-center gap-2">
+                          <Icon1 className="h-4 w-4 shrink-0 text-primary" />
+                          {item.feature1Text}
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <Icon2 className="h-4 w-4 shrink-0 text-primary" />
+                          {item.feature2Text}
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <Icon3 className="h-4 w-4 shrink-0 text-primary" />
+                          {item.feature3Text}
+                        </li>
+                      </ul>
+                      <div className="mt-4">
+                        {item.type === "free" ? (
+                          <Button variant="outline" className="w-full" asChild>
+                            <a href="#" onClick={(e) => e.preventDefault()}>
+                              Get Script
+                            </a>
+                          </Button>
+                        ) : (
+                          <Button className="w-full" asChild>
+                            <Link href="/validate">Get Key</Link>
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {filtered.length === 0 && (
+              <p className="py-12 text-center text-muted-foreground">No scripts match the selected filters.</p>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Video modal */}
+      <Dialog open={!!videoModal} onOpenChange={() => setVideoModal(null)}>
+        <DialogContent className="max-w-4xl p-0 overflow-hidden">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Video</DialogTitle>
+          </DialogHeader>
+          {videoModal && (
+            <div className="aspect-video w-full">
+              <iframe
+                title="YouTube"
+                src={`https://www.youtube.com/embed/${videoModal}?autoplay=1`}
+                className="h-full w-full"
+                allowFullScreen
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Features */}
       <section className="border-t bg-muted/30 py-20">
