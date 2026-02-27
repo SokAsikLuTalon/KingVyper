@@ -3,6 +3,7 @@ import {
   keys,
   logs,
   showcase,
+  packages,
   type Admin,
   type InsertAdmin,
   type Key,
@@ -11,6 +12,8 @@ import {
   type InsertLog,
   type Showcase,
   type InsertShowcase,
+  type Package,
+  type InsertPackage,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, asc, gte, and, sql, like, or } from "drizzle-orm";
@@ -72,6 +75,12 @@ export interface IStorage {
   incrementShowcaseView(id: number): Promise<Showcase | undefined>;
   incrementShowcaseLike(id: number): Promise<Showcase | undefined>;
   incrementShowcaseTip(id: number): Promise<Showcase | undefined>;
+
+  getAllPackages(): Promise<Package[]>;
+  getPackage(id: number): Promise<Package | undefined>;
+  createPackage(data: InsertPackage): Promise<Package>;
+  updatePackage(id: number, data: Partial<Package>): Promise<Package | undefined>;
+  deletePackage(id: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -459,6 +468,37 @@ export class DatabaseStorage implements IStorage {
       .where(eq(showcase.id, id))
       .returning();
     return updated || undefined;
+  }
+
+  async getAllPackages(): Promise<Package[]> {
+    return db
+      .select()
+      .from(packages)
+      .orderBy(asc(packages.sortOrder), asc(packages.id));
+  }
+
+  async getPackage(id: number): Promise<Package | undefined> {
+    const [row] = await db.select().from(packages).where(eq(packages.id, id));
+    return row || undefined;
+  }
+
+  async createPackage(data: InsertPackage): Promise<Package> {
+    const [created] = await db.insert(packages).values(data).returning();
+    return created;
+  }
+
+  async updatePackage(id: number, data: Partial<Package>): Promise<Package | undefined> {
+    const [updated] = await db
+      .update(packages)
+      .set(data)
+      .where(eq(packages.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
+  async deletePackage(id: number): Promise<boolean> {
+    const result = await db.delete(packages).where(eq(packages.id, id)).returning();
+    return result.length > 0;
   }
 }
 

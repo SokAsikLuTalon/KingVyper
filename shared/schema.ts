@@ -59,6 +59,22 @@ export const showcase = pgTable("showcase", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const packages = pgTable("packages", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  durationDays: integer("duration_days").notNull(),
+  price: decimal("price", { precision: 12, scale: 2 }).notNull(),
+  feature1: text("feature_1"),
+  feature2: text("feature_2"),
+  feature3: text("feature_3"),
+  feature4: text("feature_4"),
+  buyLink: text("buy_link").notNull(),
+  imageUrl: text("image_url"),
+  isPopular: integer("is_popular").default(0).notNull(),
+  sortOrder: integer("sort_order").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const keysRelations = relations(keys, ({ many }) => ({
   logs: many(logs),
 }));
@@ -121,6 +137,11 @@ export const insertShowcaseSchema = createInsertSchema(showcase).omit({
   createdAt: true,
 });
 
+export const insertPackageSchema = createInsertSchema(packages).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type Admin = typeof admins.$inferSelect;
 export type InsertAdmin = z.infer<typeof insertAdminSchema>;
 export type Key = typeof keys.$inferSelect;
@@ -129,3 +150,5 @@ export type Log = typeof logs.$inferSelect;
 export type InsertLog = z.infer<typeof insertLogSchema>;
 export type Showcase = typeof showcase.$inferSelect;
 export type InsertShowcase = z.infer<typeof insertShowcaseSchema>;
+export type Package = typeof packages.$inferSelect;
+export type InsertPackage = z.infer<typeof insertPackageSchema>;

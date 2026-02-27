@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import rateLimit from "express-rate-limit";
-import { loginSchema, validateKeySchema, generateKeysSchema, scriptExecuteSchema, insertShowcaseSchema } from "@shared/schema";
+import { loginSchema, validateKeySchema, generateKeysSchema, scriptExecuteSchema, insertShowcaseSchema, insertPackageSchema } from "@shared/schema";
 import { z } from "zod";
 
 const JWT_SECRET = process.env.SESSION_SECRET || "kingvypers-secret-key";
@@ -698,6 +698,60 @@ export async function registerRoutes(
       res.json({ tipCount: item.tipCount });
     } catch (error) {
       console.error("Showcase tip error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.get("/api/packages", async (req, res) => {
+    try {
+      const items = await storage.getAllPackages();
+      res.json(items);
+    } catch (error) {
+      console.error("Packages error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.post("/api/packages", authMiddleware, async (req, res) => {
+    try {
+      const data = insertPackageSchema.parse(req.body);
+      const item = await storage.createPackage(data);
+      res.status(201).json(item);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: error.errors[0].message });
+      }
+      console.error("Create package error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.patch("/api/packages/:id", authMiddleware, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ message: "Invalid ID" });
+      const data = insertPackageSchema.partial().parse(req.body);
+      const item = await storage.updatePackage(id, data);
+      if (!item) return res.status(404).json({ message: "Not found" });
+      res.json(item);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: error.errors[0].message });
+      }
+      console.error("Update package error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.delete("/api/packages/:id", authMiddleware, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ message: "Invalid ID" });
+      const ok = await storage.deletePackage(id);
+      if (!ok) return res.status(404).json({ message: "Not found" });
+      res.json({ message: "Deleted" });
+    } catch (error) {
+      console.error("Delete package error:", error);
       res.status(500).json({ message: "Internal server error" });
     }
   });

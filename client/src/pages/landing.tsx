@@ -22,8 +22,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import type { Showcase } from "@shared/schema";
+import type { Showcase, Package } from "@shared/schema";
 import { queryClient } from "@/lib/queryClient";
+
+function formatIdr(value: string | number): string {
+  const n = typeof value === "string" ? parseInt(String(value).replace(/\D/g, ""), 10) || 0 : Number(value);
+  return new Intl.NumberFormat("id-ID").format(n);
+}
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Zap,
@@ -94,6 +99,17 @@ export default function Landing() {
       return true;
     });
   }, [showcaseItems, filterType, filterGame]);
+
+  const { data: packageItems = [] } = useQuery<Package[]>({
+    queryKey: ["/api/packages"],
+    queryFn: async () => {
+      const res = await fetch("/api/packages");
+      if (!res.ok) return [];
+      return res.json();
+    },
+  });
+  const packageCards = useMemo(() => packageItems.slice(0, 3), [packageItems]);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -106,6 +122,9 @@ export default function Landing() {
             KingVypers
           </Link>
           <nav className="flex items-center gap-3">
+            <Link href="/beli">
+              <Button variant="default" size="sm">Beli Sekarang</Button>
+            </Link>
             <Link href="/validate">
               <Button variant="ghost" size="sm">
                 Validate Key
@@ -125,8 +144,13 @@ export default function Landing() {
             Secure license keys with HWID binding. Generate, validate, and manage keys for your script—all in one place.
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <Link href="/validate">
+            <Link href="/beli">
               <Button size="lg" className="gap-2 text-base">
+                Beli Sekarang
+              </Button>
+            </Link>
+            <Link href="/validate">
+              <Button size="lg" variant="outline" className="gap-2 text-base">
                 <Key className="h-5 w-5" />
                 Validate My Key
               </Button>
@@ -134,6 +158,70 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* Pilih Paket */}
+      {packageCards.length > 0 && (
+        <section className="border-t bg-muted/30 py-16">
+          <div className="container px-4">
+            <h2 className="font-serif text-3xl font-bold tracking-wide text-center mb-2">Pilih Paket</h2>
+            <p className="text-center text-muted-foreground mb-10">Pilih durasi dan beli key via Discord.</p>
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl mx-auto">
+              {packageCards.map((pkg) => {
+                const features = [pkg.feature1, pkg.feature2, pkg.feature3, pkg.feature4].filter(Boolean);
+                return (
+                  <div
+                    key={pkg.id}
+                    className={`relative flex flex-col rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden ${
+                      pkg.isPopular ? "ring-2 ring-primary shadow-lg" : ""
+                    }`}
+                  >
+                    {pkg.isPopular ? (
+                      <div className="absolute left-0 right-0 top-0 bg-primary py-1.5 text-center text-xs font-semibold text-primary-foreground">
+                        Most Popular
+                      </div>
+                    ) : null}
+                    <div className={pkg.isPopular ? "pt-10" : ""}>
+                      {pkg.imageUrl ? (
+                        <div className="aspect-video w-full overflow-hidden bg-muted">
+                          <img src={pkg.imageUrl} alt="" className="h-full w-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className="aspect-video w-full bg-muted flex items-center justify-center">
+                          <span className="text-muted-foreground text-sm">No image</span>
+                        </div>
+                      )}
+                      <div className="p-5 flex flex-1 flex-col">
+                        <h3 className="font-semibold text-lg">{pkg.title}</h3>
+                        <ul className="mt-3 space-y-1.5 text-sm">
+                          {features.map((f, i) => (
+                            <li key={i} className="flex items-center gap-2">
+                              <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+                              {f}
+                            </li>
+                          ))}
+                        </ul>
+                        <p className="mt-4 text-xl font-bold">IDR {formatIdr(pkg.price ?? 0)}</p>
+                        <Button className="mt-4 w-full" asChild>
+                          <a href={pkg.buyLink} target="_blank" rel="noopener noreferrer">
+                            Beli Sekarang
+                          </a>
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {packageItems.length > 3 && (
+              <div className="mt-8 text-center">
+                <Link href="/beli">
+                  <Button variant="outline">Lihat semua paket</Button>
+                </Link>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Showcase */}
       {showcaseItems.length > 0 && (

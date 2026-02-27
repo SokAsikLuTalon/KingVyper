@@ -19,6 +19,8 @@ import Generate from "@/pages/generate";
 import Revenue from "@/pages/revenue";
 import Settings from "@/pages/settings";
 import ShowcaseAdmin from "@/pages/showcase-admin";
+import PackagesAdmin from "@/pages/packages-admin";
+import BeliSekarang from "@/pages/beli";
 
 function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
@@ -48,6 +50,7 @@ function AdminProtectedRouter() {
       <Route path="/kings/revenue" component={Revenue} />
       <Route path="/kings/settings" component={Settings} />
       <Route path="/kings/showcase" component={ShowcaseAdmin} />
+      <Route path="/kings/packages" component={PackagesAdmin} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -92,6 +95,9 @@ function RootRouter() {
   }
   if (location === "/validate") {
     return <ValidateKey />;
+  }
+  if (location === "/beli") {
+    return <BeliSekarang />;
   }
 
   // Admin routes (hidden path): /kings, /kings/dashboard, ...
