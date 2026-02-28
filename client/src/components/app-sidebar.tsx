@@ -1,5 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Key, LayoutDashboard, Plus, DollarSign, Settings, LogOut, ExternalLink, LayoutGrid, Package } from "lucide-react";
+import { HeaderLogo } from "@/components/header-logo";
 import {
   Sidebar,
   SidebarContent,
@@ -33,7 +34,7 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-3">
-          <img src="/logo/Kingvyperslogo.jpg" alt="KingVypers" className="h-10 w-10 rounded-lg object-cover" />
+          <HeaderLogo size="lg" />
           <div className="flex flex-col">
             <span className="font-serif text-lg font-bold tracking-wide">KingVypers</span>
             <span className="text-xs text-muted-foreground">Key Management</span>

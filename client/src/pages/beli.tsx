@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { HeaderLogo } from "@/components/header-logo";
 import type { Package } from "@shared/schema";
 
 function formatIdr(value: string | number): string {
@@ -37,7 +38,7 @@ export default function BeliSekarang() {
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2 font-serif text-xl font-bold tracking-wide">
-            <img src="/logo/Kingvyperslogo.jpg" alt="KingVypers" className="h-9 w-9 rounded-lg object-cover" />
+            <HeaderLogo size="md" />
             KingVypers
           </Link>
           <nav className="flex items-center gap-3">

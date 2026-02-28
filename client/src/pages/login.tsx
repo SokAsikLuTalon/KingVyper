@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { Link } from "wouter";
+import { HeaderLogo } from "@/components/header-logo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -59,7 +60,7 @@ export default function Login() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-4 text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-lg overflow-hidden">
-            <img src="/logo/Kingvyperslogo.jpg" alt="KingVypers" className="h-16 w-16 object-cover" />
+            <HeaderLogo size="xl" />
           </div>
           <div>
             <CardTitle className="font-serif text-2xl font-bold tracking-wide">

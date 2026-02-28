@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/dialog";
 import type { Showcase, Package } from "@shared/schema";
 import { queryClient } from "@/lib/queryClient";
+import { HeaderLogo } from "@/components/header-logo";
 
 function formatIdr(value: string | number): string {
   const n = typeof value === "string" ? parseFloat(String(value).replace(/,/g, "")) || 0 : Number(value);
@@ -116,7 +117,7 @@ export default function Landing() {
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2 font-serif text-xl font-bold tracking-wide">
-            <img src="/logo/Kingvyperslogo.jpg" alt="KingVypers" className="h-9 w-9 rounded-lg object-cover" />
+            <HeaderLogo size="md" />
             KingVypers
           </Link>
           <nav className="flex items-center gap-3">
