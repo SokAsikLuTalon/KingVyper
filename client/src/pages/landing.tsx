@@ -5,6 +5,7 @@ import {
   Key,
   Shield,
   Zap,
+  Crown,
   CheckCircle2,
   Star,
   Sparkles,
