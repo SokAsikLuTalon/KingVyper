@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import {
   Key,
-  Crown,
   Loader2,
   Calendar,
   Cpu,
@@ -173,7 +172,7 @@ export default function ValidateKey() {
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
         <div className="container flex h-14 items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2 font-serif text-lg font-bold">
-            <Crown className="h-5 w-5 text-primary" />
+            <img src="/logo/Kingvyperslogo.jpg" alt="KingVypers" className="h-8 w-8 rounded-lg object-cover" />
             KingVypers
           </Link>
           <div className="flex gap-2">

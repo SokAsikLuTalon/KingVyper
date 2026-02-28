@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Key, LayoutDashboard, Plus, DollarSign, Settings, LogOut, Crown, ExternalLink, LayoutGrid, Package } from "lucide-react";
+import { Key, LayoutDashboard, Plus, DollarSign, Settings, LogOut, ExternalLink, LayoutGrid, Package } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -33,9 +33,7 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary">
-            <Crown className="h-5 w-5 text-primary-foreground" />
-          </div>
+          <img src="/logo/Kingvyperslogo.jpg" alt="KingVypers" className="h-10 w-10 rounded-lg object-cover" />
           <div className="flex flex-col">
             <span className="font-serif text-lg font-bold tracking-wide">KingVypers</span>
             <span className="text-xs text-muted-foreground">Key Management</span>

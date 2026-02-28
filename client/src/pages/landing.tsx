@@ -5,7 +5,6 @@ import {
   Key,
   Shield,
   Zap,
-  Crown,
   CheckCircle2,
   Star,
   Sparkles,
@@ -116,9 +115,7 @@ export default function Landing() {
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2 font-serif text-xl font-bold tracking-wide">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-              <Crown className="h-5 w-5 text-primary-foreground" />
-            </div>
+            <img src="/logo/Kingvyperslogo.jpg" alt="KingVypers" className="h-9 w-9 rounded-lg object-cover" />
             KingVypers
           </Link>
           <nav className="flex items-center gap-3">
@@ -442,7 +439,7 @@ export default function Landing() {
             </div>
             <div className="rounded-xl border bg-card p-6 text-card-foreground shadow-sm">
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-chart-3/10">
-                <Crown className="h-6 w-6 text-chart-3" />
+                <Key className="h-6 w-6 text-chart-3" />
               </div>
               <h3 className="mt-4 font-semibold text-lg">Dashboard</h3>
               <p className="mt-2 text-sm text-muted-foreground">
