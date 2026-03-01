@@ -14,6 +14,7 @@ import {
   Heart,
   Eye,
   Gift,
+  MessageCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -47,6 +48,8 @@ function getYoutubeId(url: string | null): string {
   const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
   return m ? m[1] : "";
 }
+
+const DISCORD_INVITE = "https://discord.gg/vGT2km9gh";
 
 export default function Landing() {
   const [filterType, setFilterType] = useState<"all" | "free" | "premium">("all");
@@ -121,6 +124,12 @@ export default function Landing() {
             KingVypers
           </Link>
           <nav className="flex items-center gap-3">
+            <Button variant="outline" size="sm" asChild>
+              <a href={DISCORD_INVITE} target="_blank" rel="noopener noreferrer" className="gap-1.5">
+                <MessageCircle className="h-4 w-4" />
+                Join Discord
+              </a>
+            </Button>
             <Link href="/beli">
               <Button variant="default" size="sm">Beli Sekarang</Button>
             </Link>
@@ -143,6 +152,12 @@ export default function Landing() {
             Secure license keys with HWID binding. Generate, validate, and manage keys for your script—all in one place.
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+            <Button size="lg" variant="outline" className="gap-2 text-base" asChild>
+              <a href={DISCORD_INVITE} target="_blank" rel="noopener noreferrer">
+                <MessageCircle className="h-5 w-5" />
+                Join Discord
+              </a>
+            </Button>
             <Link href="/beli">
               <Button size="lg" className="gap-2 text-base">
                 Beli Sekarang
@@ -501,6 +516,10 @@ export default function Landing() {
             © KingVypers · Key Management System
           </span>
           <div className="flex gap-6">
+            <a href={DISCORD_INVITE} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1">
+              <MessageCircle className="h-4 w-4" />
+              Join Discord
+            </a>
             <Link href="/validate" className="text-sm text-muted-foreground hover:text-foreground">
               Validate Key
             </Link>
